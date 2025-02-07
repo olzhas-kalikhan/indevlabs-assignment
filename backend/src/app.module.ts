@@ -7,11 +7,11 @@ import { join } from 'path';
 
 @Module({
   imports: [
-    TodosModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../ frontend', 'dist'),
+      rootPath: join(__dirname, '../../frontend', 'dist'),
       exclude: ['api/*'],
     }),
+    TodosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
