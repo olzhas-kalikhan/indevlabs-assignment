@@ -4,14 +4,14 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
+  Patch,
   Post,
-  Put,
+  ValidationPipe,
 } from '@nestjs/common';
-import {
-  TodosService,
-  type CreateTodoPayload,
-  type UpdateTodoPayload,
-} from './todos.service';
+import { TodosService } from './todos.service';
+import type { CreateTodoRecordDto } from './dto/create-todo.dto';
+import type { UpdateTodoDto } from './dto/update-todo.dto';
 
 @Controller('todos')
 export class TodosController {
@@ -23,17 +23,20 @@ export class TodosController {
   }
 
   @Post()
-  create(@Body() todoPayload: CreateTodoPayload) {
-    return this.appService.create(todoPayload);
+  create(@Body(ValidationPipe) createTodoDto: CreateTodoRecordDto) {
+    return this.appService.create(createTodoDto);
   }
 
-  @Put()
-  update(@Body() todoPayload: UpdateTodoPayload) {
-    return this.appService.update(todoPayload);
+  @Patch(':id')
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body(ValidationPipe) updateTodoDto: UpdateTodoDto,
+  ) {
+    return this.appService.update(id, updateTodoDto);
   }
 
   @Delete(':id')
-  remove(@Param() params: { id: string }) {
-    return this.appService.remove(parseInt(params.id));
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.appService.remove(id);
   }
 }

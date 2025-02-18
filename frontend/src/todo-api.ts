@@ -19,8 +19,8 @@ const getTodo = async () => {
   });
 };
 
-const updateTodo = async (todo: TodoItem) => {
-  return axios.put(TODOS_PATH, todo);
+const updateTodo = async ({ id, ...todoBody }: TodoItem) => {
+  return axios.patch(`${TODOS_PATH}/${id}`, todoBody);
 };
 
 const createTodo = async (todo: Omit<TodoItem, "id">) => {

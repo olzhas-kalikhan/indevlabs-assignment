@@ -1,4 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import type { CreateTodoRecordDto } from './dto/create-todo.dto';
+import type { UpdateTodoDto } from './dto/update-todo.dto';
 
 export type TodoRecord = {
   id: number;
@@ -7,11 +9,6 @@ export type TodoRecord = {
   created_at: string;
   modified_at: string;
 };
-
-type SystemFields = 'created_at' | 'modified_at';
-
-export type CreateTodoPayload = Omit<TodoRecord, 'id' | SystemFields>;
-export type UpdateTodoPayload = Omit<TodoRecord, SystemFields>;
 
 const generateData = () =>
   Array.from({ length: 4 }, (_, i) => {
@@ -32,29 +29,33 @@ export class TodosService {
   private _id_increment = this._todos.length;
 
   findAll() {
-    return this._todos.sort(
-      (a, b) => -a.created_at.localeCompare(b.created_at),
-    );
+    return this._todos
+      .sort((a, b) => -a.created_at.localeCompare(b.created_at))
+      .map((todo) => ({
+        id: todo.id,
+        name: todo.name,
+        completed: todo.completed,
+      }));
   }
-  create(todo: CreateTodoPayload) {
+  create(createTodoDto: CreateTodoRecordDto) {
     const isoDate = new Date().toISOString();
     this._todos.push({
+      ...createTodoDto,
       id: this._id_increment,
-      ...todo,
       created_at: isoDate,
       modified_at: isoDate,
     });
     this._id_increment++;
-    return todo;
+    return createTodoDto;
   }
-  update(todo: UpdateTodoPayload) {
-    const existingIndex = this._todos.findIndex((t) => t.id === todo.id);
+  update(id: number, updateTodoDto: UpdateTodoDto) {
+    const existingIndex = this._todos.findIndex((t) => t.id === id);
     if (existingIndex === -1)
       throw new HttpException('Todo item not Found', HttpStatus.NOT_FOUND);
 
     const updatedTodo = {
       ...this._todos[existingIndex],
-      ...todo,
+      ...updateTodoDto,
       modified_at: new Date().toISOString(),
     };
 
